@@ -3,13 +3,25 @@ import { Grid } from 'semantic-ui-react';
 import axios from 'axios';
 import SongList from './SongList';
 import CreateSongForm from './CreateSongForm';
+import EditSongModal from './EditSongModal';
 
 class SongContainer extends Component {
   constructor(props) {
     super(props);
-
+/*
+title = CharField()
+    artist = CharField()
+    album = CharField()
+    */
     this.state = {
-      songs: []
+      songs: [],
+      songToEdit: {
+        title: '',
+        artist: '',
+        album: '',
+        id: ''
+      },
+      showEditModal: false
     }
   }
   componentDidMount() {
@@ -27,6 +39,25 @@ class SongContainer extends Component {
     this.setState({ songs: this.state.songs.filter((song) => song.id !== id) });
 
     console.log(deleteSongResponse, ' response from Flask server');
+  };
+
+  handleEditChange = (e) => {
+    this.setState({
+      songToEdit: {
+        ...this.state.songToEdit,
+        [e.currentTarget.name]: e.currentTarget.value,
+      },
+    });
+  };
+  openAndEdit = (songFromTheList) => {
+    console.log(songFromTheList, ' songToEdit  ');
+  
+    this.setState({
+      showEditModal: true,
+      songToEdit: {
+        ...songFromTheList,
+      },
+    });
   };
 
   addSong = async (e, song) => {
@@ -67,17 +98,47 @@ class SongContainer extends Component {
     }
   };
 
+  closeAndEdit = async (e) => {
+    e.preventDefault();
+    try {
+      const editResponse = await axios.put(
+        process.env.REACT_APP_FLASK_API_URL +
+          '/api/v1/songs/' +
+          this.state.songToEdit.id,
+        this.state.songToEdit
+      );
+  
+      console.log(editResponse, ' parsed edit');
+  
+      const newSongArrayWithEdit = this.state.songs.map((song) => {
+        if (song.id === editResponse.data.data.id) {
+          song = editResponse.data.data;
+        }
+  
+        return song;
+      });
+  
+      this.setState({
+        showEditModal: false,
+        songs: newSongArrayWithEdit,
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };  
+
   render() {
     return (
 
       <Grid columns={2} divided textAlign='center' style={{ height: '100%' }} verticalAlign='top' stackable>
         <Grid.Row>
           <Grid.Column>
-            <SongList songs={this.state.songs} deleteSong={this.deleteSong} />
+            <SongList songs={this.state.songs} deleteSong={this.deleteSong} openAndEdit={this.openAndEdit}/>
           </Grid.Column>
           <Grid.Column>
             <CreateSongForm addSong={this.addSong} />
           </Grid.Column>
+          <EditSongModal handleEditChange={this.handleEditChange} open={this.state.showEditModal} songToEdit={this.state.songToEdit} closeAndEdit={this.closeAndEdit}/>          
         </Grid.Row>
       </Grid>
 
