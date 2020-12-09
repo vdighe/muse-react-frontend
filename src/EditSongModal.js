@@ -4,7 +4,7 @@ import { Modal, Form, Button, Label, Header } from 'semantic-ui-react';
 const EditSongModal = (props) => {
   console.log(props);
   return (
-    <Modal open={props.open}>
+    <Modal closeIcon onClose={props.editModal} open={props.open}>
       <Header>Edit Song</Header>
       <Modal.Content>
         <Form onSubmit={props.closeAndEdit}>

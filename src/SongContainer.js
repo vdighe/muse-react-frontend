@@ -98,6 +98,12 @@ title = CharField()
     }
   };
 
+  editModal = () =>{
+    console.log('Vaishali Edit Modal')
+    this.setState({
+      showEditModal:false,
+    })
+  }
   closeAndEdit = async (e) => {
     e.preventDefault();
     try {
@@ -138,7 +144,12 @@ title = CharField()
           <Grid.Column>
             <CreateSongForm addSong={this.addSong} />
           </Grid.Column>
-          <EditSongModal handleEditChange={this.handleEditChange} open={this.state.showEditModal} songToEdit={this.state.songToEdit} closeAndEdit={this.closeAndEdit}/>          
+          <EditSongModal 
+            editModal={this.editModal}
+            handleEditChange={this.handleEditChange} 
+            open={this.state.showEditModal} 
+            songToEdit={this.state.songToEdit} 
+            closeAndEdit={this.closeAndEdit}/>          
         </Grid.Row>
       </Grid>
 
